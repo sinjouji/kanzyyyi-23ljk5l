@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>かきじゅん 〜 漢字の書き順学習</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+  <header class="app-header">
+    <span class="title-jp">かきじゅん</span>
+    <span class="subtitle">小学3年生の漢字 200字</span>
+  </header>
+
+  <!-- ============ 一覧ページ ============ -->
+  <section id="view-list">
+    <div class="kanji-grid" id="kanji-grid"></div>
+  </section>
+
+  <!-- ============ 個別ページ ============ -->
+  <section id="view-detail" class="hidden">
+    <div class="detail-top">
+      <button class="back-btn" id="btn-back-top">← 一覧</button>
+    </div>
+
+    <div class="focus-kanji" id="focus-kanji"></div>
+    <div class="play-instruction">右の字をタップで最初から ▶️</div>
+
+    <div class="boxes-row">
+      <div class="kanji-box-wrap">
+        <span class="box-label">かんせい</span>
+        <div class="kanji-box box-static">
+          <svg class="grid-guide" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <line x1="50" y1="0" x2="50" y2="100"></line>
+            <line x1="0" y1="50" x2="100" y2="50"></line>
+          </svg>
+          <svg class="stroke-svg" id="static-svg" viewBox="0 0 109 109"></svg>
+        </div>
+      </div>
+      <div class="kanji-box-wrap">
+        <span class="box-label">かきじゅん</span>
+        <div class="kanji-box box-stroke" id="box-stroke">
+          <svg class="grid-guide" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <line x1="50" y1="0" x2="50" y2="100"></line>
+            <line x1="0" y1="50" x2="100" y2="50"></line>
+          </svg>
+          <svg class="stroke-svg" id="stroke-svg" viewBox="0 0 109 109"></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="meta-row">
+      <span class="stroke-count" id="stroke-count-label"></span>
+    </div>
+
+    <div class="readings">
+      <div class="reading-group">
+        <h3>音読み</h3>
+        <div class="reading-item" id="on-readings"></div>
+      </div>
+      <div class="reading-group">
+        <h3>訓読み</h3>
+        <div class="reading-item" id="kun-readings"></div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="nav-btn" id="btn-prev">← 前の漢字</button>
+      <button class="nav-btn" id="btn-next">次の漢字 →</button>
+    </div>
+    <button class="list-return" id="btn-back-bottom">リストに戻る</button>
+  </section>
+
+  <footer class="credit">
+    書き順データ: <a href="https://kanjivg.tagaini.net/" target="_blank" rel="noopener">KanjiVG</a>
+    (© Ulrich Apel, CC BY-SA 3.0)
+  </footer>
+</div>
+
+<script src="kanji-data.js"></script>
+<script src="stroke-data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
