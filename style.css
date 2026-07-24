@@ -12,6 +12,7 @@
   --nando: #46677A;
   --nando-deep: #33505F;
   --disabled: #C9BE9F;
+  --stroke-active: #E0512F;
   --guide-line: rgba(42,39,35,0.16);
   --guide-ghost: rgba(42,39,35,0.11);
 }
@@ -57,6 +58,33 @@ header.app-header .subtitle{
 
 /* ---------- 一覧ページ ---------- */
 #view-list.hidden, #view-detail.hidden{ display:none; }
+
+.grade-select-row{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.grade-select-label{
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  letter-spacing: 0.05em;
+}
+#grade-select{
+  font-family: "Zen Kaku Gothic New", sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--ink);
+  background: var(--card);
+  border: 1.5px solid var(--card-border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+#grade-select:focus{
+  outline: 2px solid var(--mizu);
+  outline-offset: 1px;
+}
 
 .kanji-grid{
   display:grid;
@@ -209,6 +237,10 @@ header.app-header .subtitle{
   stroke-width: 4.2;
   stroke-linecap: round;
   stroke-linejoin: round;
+  transition: stroke 0.12s ease;
+}
+.stroke-live.stroke-active{
+  stroke: var(--stroke-active);
 }
 
 .meta-row{

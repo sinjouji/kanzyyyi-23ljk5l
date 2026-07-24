@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
 <title>かきじゅん 〜 漢字の書き順学習</title>
-<link rel="icon" href="icon-kan.png" type="image/png">
-<link rel="apple-touch-icon" href="icon-kan.png">
+<link rel="icon" href="icon-dplan.png" type="image/png">
+<link rel="apple-touch-icon" href="icon-dplan.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -16,11 +16,15 @@
 <div class="app">
   <header class="app-header">
     <span class="title-jp">かきじゅん</span>
-    <span class="subtitle">小学3年生の漢字 200字</span>
+    <span class="subtitle">小学生の漢字</span>
   </header>
 
   <!-- ============ 一覧ページ ============ -->
   <section id="view-list">
+    <div class="grade-select-row">
+      <label for="grade-select" class="grade-select-label">学年</label>
+      <select id="grade-select"></select>
+    </div>
     <div class="kanji-grid" id="kanji-grid"></div>
   </section>
 
@@ -84,6 +88,8 @@
   </footer>
 </div>
 
+<script src="kanji-data-grade1.js"></script>
+<script src="kanji-data-grade3.js"></script>
 <script src="kanji-data.js"></script>
 <script src="stroke-data.js"></script>
 <script src="app.js"></script>

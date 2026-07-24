@@ -6,12 +6,14 @@ const STROKE_DURATION = 500; // 1画あたりの再生時間（ミリ秒）。�
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
-let currentIndex = 0;      // 個別ページで表示中の KANJI_LIST 上のインデックス
+let currentGrade = 1;      // 現在選択中の学年
+let currentIndex = 0;      // 個別ページで表示中の配列上のインデックス
 let playTimers = [];       // 再生中の setTimeout ID（再タップ時にクリアするため）
 let playToken = 0;         // 再生の世代を識別するトークン（多重タップ対策）
 
 const el = {
   grid: document.getElementById("kanji-grid"),
+  gradeSelect: document.getElementById("grade-select"),
   viewList: document.getElementById("view-list"),
   viewDetail: document.getElementById("view-detail"),
   focusKanji: document.getElementById("focus-kanji"),
@@ -27,10 +29,33 @@ const el = {
   btnBackBottom: document.getElementById("btn-back-bottom"),
 };
 
+// ---- 学年データまわりのヘルパー ----
+// 一覧は KANJI_DATA_BY_GRADE に登録されている配列の順番をそのまま表示する
+// （読み方などによる並べ替えは行わない）。
+function getActiveKanjiList(){
+  return KANJI_DATA_BY_GRADE[currentGrade].list;
+}
+
+// ---- 学年セレクタの初期化 ----
+function initGradeSelect(){
+  el.gradeSelect.innerHTML = "";
+  Object.keys(KANJI_DATA_BY_GRADE)
+    .map(Number)
+    .sort((a, b) => a - b)
+    .forEach(grade => {
+      const option = document.createElement("option");
+      option.value = grade;
+      option.textContent = KANJI_DATA_BY_GRADE[grade].label;
+      el.gradeSelect.appendChild(option);
+    });
+  el.gradeSelect.value = currentGrade;
+}
+
 // ---- 一覧ページの描画 ----
 function renderList(){
   el.grid.innerHTML = "";
-  KANJI_LIST.forEach((entry, index) => {
+  getActiveKanjiList().forEach((entry, index) => {
+
     const card = document.createElement("div");
     card.className = "kanji-card";
     card.setAttribute("role", "button");
@@ -85,7 +110,7 @@ function openDetail(index){
   currentIndex = index;
   clearPlayTimers();
 
-  const entry = KANJI_LIST[currentIndex];
+  const entry = getActiveKanjiList()[currentIndex];
 
   el.focusKanji.textContent = entry.kanji;
   el.strokeCountLabel.textContent = entry.strokeCount + "画";
@@ -98,7 +123,7 @@ function openDetail(index){
   showCompletedState(); // 初期状態は完成形を表示
 
   el.btnPrev.disabled = currentIndex === 0;
-  el.btnNext.disabled = currentIndex === KANJI_LIST.length - 1;
+  el.btnNext.disabled = currentIndex === getActiveKanjiList().length - 1;
 
   el.viewList.classList.add("hidden");
   el.viewDetail.classList.remove("hidden");
@@ -183,6 +208,7 @@ function playStrokes(){
   currentPathEls.forEach(p => {
     p.el.style.transition = "none";
     p.el.style.strokeDashoffset = p.length;
+    p.el.classList.remove("stroke-active");
   });
   // 上のリセットを確実に反映させてからアニメーションを開始する
   void el.strokeSvg.offsetWidth; // reflow
@@ -194,8 +220,15 @@ function playStrokes(){
       if (myToken !== playToken) return;
       p.el.style.transition = `stroke-dashoffset ${STROKE_DURATION}ms linear`;
       p.el.style.strokeDashoffset = 0;
+      p.el.classList.add("stroke-active"); // 今描いている画だけ目立つ色にする
     }, i * STROKE_DURATION);
     playTimers.push(startTimer);
+
+    const endTimer = setTimeout(() => {
+      if (myToken !== playToken) return;
+      p.el.classList.remove("stroke-active"); // 描き終わったら通常の色に戻す
+    }, (i + 1) * STROKE_DURATION);
+    playTimers.push(endTimer);
   });
 
   const endTimer = setTimeout(() => {
@@ -210,7 +243,7 @@ function goPrev(){
   if (currentIndex > 0) openDetail(currentIndex - 1);
 }
 function goNext(){
-  if (currentIndex < KANJI_LIST.length - 1) openDetail(currentIndex + 1);
+  if (currentIndex < getActiveKanjiList().length - 1) openDetail(currentIndex + 1);
 }
 
 // ---- イベント登録 ----
@@ -219,6 +252,12 @@ el.btnPrev.addEventListener("click", goPrev);
 el.btnNext.addEventListener("click", goNext);
 el.btnBackTop.addEventListener("click", backToList);
 el.btnBackBottom.addEventListener("click", backToList);
+el.gradeSelect.addEventListener("change", () => {
+  currentGrade = Number(el.gradeSelect.value);
+  backToList();   // 学年を切り替えたら必ず一覧ページに戻す
+  renderList();
+});
 
 // ---- 初期表示 ----
+initGradeSelect();
 renderList();
