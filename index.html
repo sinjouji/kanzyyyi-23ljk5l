@@ -15,8 +15,11 @@
 
 <div class="app">
   <header class="app-header">
-    <span class="title-jp">かきじゅん</span>
-    <span class="subtitle">小学生の漢字</span>
+    <div class="header-titles">
+      <span class="title-jp">かきじゅん</span>
+      <span class="subtitle">小学生の漢字</span>
+    </div>
+    <button class="settings-btn" id="btn-open-settings" aria-label="設定">⚙</button>
   </header>
 
   <!-- ============ 一覧ページ ============ -->
@@ -26,6 +29,86 @@
       <select id="grade-select"></select>
     </div>
     <div class="kanji-grid" id="kanji-grid"></div>
+  </section>
+
+  <!-- ============ 設定ページ ============ -->
+  <section id="view-settings" class="hidden">
+    <div class="detail-top">
+      <button class="back-btn" id="btn-settings-back">← もどる</button>
+    </div>
+    <h2 class="settings-title">設定</h2>
+
+    <div class="settings-group">
+      <h3 class="settings-label">現在の学年</h3>
+      <select id="setting-current-grade"></select>
+    </div>
+
+    <div class="settings-group">
+      <h3 class="settings-label">漢字の練習モード</h3>
+      <label class="settings-radio-row">
+        <input type="radio" name="practice-mode-type" value="belowGrade">
+        設定した学年より下を直接練習
+      </label>
+      <label class="settings-radio-row">
+        <input type="radio" name="practice-mode-type" value="all">
+        すべて直接練習
+      </label>
+      <label class="settings-radio-row">
+        <input type="radio" name="practice-mode-type" value="perGrade">
+        学年ごとに設定
+      </label>
+      <div class="settings-per-grade hidden" id="settings-per-grade">
+        <label class="settings-checkbox-row"><input type="checkbox" data-grade="1"> 小学1年生</label>
+        <label class="settings-checkbox-row"><input type="checkbox" data-grade="2"> 小学2年生</label>
+        <label class="settings-checkbox-row"><input type="checkbox" data-grade="3"> 小学3年生</label>
+        <label class="settings-checkbox-row"><input type="checkbox" data-grade="4"> 小学4年生</label>
+        <label class="settings-checkbox-row"><input type="checkbox" data-grade="5"> 小学5年生</label>
+        <label class="settings-checkbox-row"><input type="checkbox" data-grade="6"> 小学6年生</label>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <h3 class="settings-label">書き順見本の位置</h3>
+      <label class="settings-radio-row">
+        <input type="radio" name="sample-position" value="left">左
+      </label>
+      <label class="settings-radio-row">
+        <input type="radio" name="sample-position" value="right">右
+      </label>
+    </div>
+
+    <div class="settings-group">
+      <h3 class="settings-label">なぞり判定の厳しさ</h3>
+      <label class="settings-radio-row">
+        <input type="radio" name="tolerance" value="easy">やさしい
+      </label>
+      <label class="settings-radio-row">
+        <input type="radio" name="tolerance" value="normal">ふつう
+      </label>
+      <label class="settings-radio-row">
+        <input type="radio" name="tolerance" value="hard">きびしい
+      </label>
+    </div>
+
+    <div class="settings-group">
+      <h3 class="settings-label">書き直し方法</h3>
+      <label class="settings-radio-row">
+        <input type="radio" name="redo-mode" value="strokeOnly">その1画だけ書き直す
+      </label>
+      <label class="settings-radio-row">
+        <input type="radio" name="redo-mode" value="fromStart">すべて最初から書き直す
+      </label>
+    </div>
+  </section>
+
+  <!-- ============ 直接練習ページ（骨組み・なぞり判定は未実装） ============ -->
+  <section id="view-practice" class="hidden">
+    <div class="detail-top">
+      <button class="back-btn" id="btn-practice-back">← もどる</button>
+    </div>
+    <div class="focus-kanji" id="practice-focus-char"></div>
+    <div class="play-instruction" id="practice-instruction">見本をタップで再生 ▶️</div>
+    <div class="boxes-row" id="practice-boxes-row"></div>
   </section>
 
   <!-- ============ 個別ページ ============ -->
@@ -91,8 +174,18 @@
 <script src="kanji-data-grade1.js"></script>
 <script src="kanji-data-grade2.js"></script>
 <script src="kanji-data-grade3.js"></script>
+<script src="kanji-data-grade4.js"></script>
+<script src="kanji-data-grade5.js"></script>
+<script src="kanji-data-grade6.js"></script>
 <script src="kanji-data.js"></script>
+<script src="hiragana-data.js"></script>
+<script src="katakana-data.js"></script>
+<script src="numbers-data.js"></script>
 <script src="stroke-data.js"></script>
+<script src="content-registry.js"></script>
+<script src="settings.js"></script>
+<script src="settings-ui.js"></script>
 <script src="app.js"></script>
+<script src="practice.js"></script>
 </body>
 </html>

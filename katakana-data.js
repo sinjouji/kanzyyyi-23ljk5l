@@ -1,0 +1,55 @@
+/* =========================================================================
+   katakana-data.js（データ層 / カタカナ 46字）
+
+   五十音順（ア〜ン）。hiragana-data.js と同じ形式・同じ考え方。
+   濁音・半濁音・拗音は未収録。
+   ========================================================================= */
+
+const katakanaChars = [
+  { character: "ア", strokeCount: 2 },
+  { character: "イ", strokeCount: 2 },
+  { character: "ウ", strokeCount: 3 },
+  { character: "エ", strokeCount: 3 },
+  { character: "オ", strokeCount: 3 },
+  { character: "カ", strokeCount: 2 },
+  { character: "キ", strokeCount: 3 },
+  { character: "ク", strokeCount: 2 },
+  { character: "ケ", strokeCount: 3 },
+  { character: "コ", strokeCount: 2 },
+  { character: "サ", strokeCount: 3 },
+  { character: "シ", strokeCount: 3 },
+  { character: "ス", strokeCount: 2 },
+  { character: "セ", strokeCount: 2 },
+  { character: "ソ", strokeCount: 2 },
+  { character: "タ", strokeCount: 3 },
+  { character: "チ", strokeCount: 3 },
+  { character: "ツ", strokeCount: 3 },
+  { character: "テ", strokeCount: 3 },
+  { character: "ト", strokeCount: 2 },
+  { character: "ナ", strokeCount: 2 },
+  { character: "ニ", strokeCount: 2 },
+  { character: "ヌ", strokeCount: 2 },
+  { character: "ネ", strokeCount: 4 },
+  { character: "ノ", strokeCount: 1 },
+  { character: "ハ", strokeCount: 2 },
+  { character: "ヒ", strokeCount: 2 },
+  { character: "フ", strokeCount: 1 },
+  { character: "ヘ", strokeCount: 1 },
+  { character: "ホ", strokeCount: 4 },
+  { character: "マ", strokeCount: 2 },
+  { character: "ミ", strokeCount: 3 },
+  { character: "ム", strokeCount: 2 },
+  { character: "メ", strokeCount: 2 },
+  { character: "モ", strokeCount: 3 },
+  { character: "ヤ", strokeCount: 2 },
+  { character: "ユ", strokeCount: 2 },
+  { character: "ヨ", strokeCount: 3 },
+  { character: "ラ", strokeCount: 2 },
+  { character: "リ", strokeCount: 2 },
+  { character: "ル", strokeCount: 2 },
+  { character: "レ", strokeCount: 1 },
+  { character: "ロ", strokeCount: 3 },
+  { character: "ワ", strokeCount: 2 },
+  { character: "ヲ", strokeCount: 3 },
+  { character: "ン", strokeCount: 2 }
+];

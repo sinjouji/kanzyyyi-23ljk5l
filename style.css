@@ -38,11 +38,17 @@ body{
 
 header.app-header{
   display:flex;
-  align-items:baseline;
+  align-items:center;
+  justify-content:space-between;
   gap:10px;
   padding: 4px 4px 20px;
   border-bottom: 1px solid var(--card-border);
   margin-bottom: 24px;
+}
+header.app-header .header-titles{
+  display:flex;
+  align-items:baseline;
+  gap:10px;
 }
 header.app-header .title-jp{
   font-family:"Shippori Mincho", serif;
@@ -55,9 +61,22 @@ header.app-header .subtitle{
   color: var(--ink-soft);
   letter-spacing: 0.02em;
 }
+.settings-btn{
+  border: 1.5px solid var(--card-border);
+  background: var(--card);
+  color: var(--ink);
+  font-size: 1.1rem;
+  line-height:1;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.settings-btn:active{ transform: translateY(1px); }
 
 /* ---------- 一覧ページ ---------- */
-#view-list.hidden, #view-detail.hidden{ display:none; }
+#view-list.hidden, #view-detail.hidden, #view-settings.hidden, #view-practice.hidden{ display:none; }
 
 .grade-select-row{
   display:flex;
@@ -334,3 +353,138 @@ footer.credit{
   line-height: 1.6;
 }
 footer.credit a{ color: var(--nando); }
+
+/* ---------- 設定ページ ---------- */
+.settings-title{
+  font-family:"Shippori Mincho", serif;
+  font-weight:700;
+  font-size: 1.2rem;
+  margin: 4px 0 20px;
+}
+.settings-group{
+  margin-bottom: 26px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--card-border);
+}
+.settings-group:last-child{
+  border-bottom: none;
+}
+.settings-label{
+  font-size: 0.78rem;
+  font-weight:700;
+  color: var(--nando-deep);
+  letter-spacing: 0.06em;
+  margin: 0 0 10px;
+}
+.settings-radio-row,
+.settings-checkbox-row{
+  display:flex;
+  align-items:center;
+  gap: 8px;
+  font-size: 0.9rem;
+  padding: 8px 4px;
+  cursor:pointer;
+}
+.settings-radio-row input,
+.settings-checkbox-row input{
+  width: 18px;
+  height: 18px;
+  accent-color: var(--nando);
+  cursor:pointer;
+}
+.settings-per-grade{
+  margin-top: 4px;
+  margin-left: 8px;
+  padding-left: 14px;
+  border-left: 2px solid var(--card-border);
+}
+#setting-current-grade{
+  font-family: "Zen Kaku Gothic New", sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--ink);
+  background: var(--card);
+  border: 1.5px solid var(--card-border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+/* ---------- 直接練習ページ（骨組み） ---------- */
+.stroke-current{
+  stroke: #E0512F;
+  stroke-width: 5.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+.stroke-done{
+  stroke: var(--ink);
+  stroke-width: 4.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+.stroke-marker-start{
+  fill: none;
+  stroke: #2F8A96;
+  stroke-width: 2.6;
+}
+.stroke-marker-end{
+  fill: none;
+  stroke: #2F8A96;
+  stroke-width: 2.6;
+}
+#view-practice{
+  position: relative;
+}
+
+.practice-box-tap-hint{
+  font-size: 0.68rem;
+  color: var(--ink-soft);
+  text-align:center;
+  margin-top: 6px;
+}
+.user-ink{
+  fill: none;
+  stroke: #2F5FA6;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.85;
+}
+
+.practice-result-overlay{
+  position: absolute;
+  inset: 0;
+  background: rgba(42, 39, 35, 0.42);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index: 20;
+}
+.practice-result-card{
+  background: var(--card);
+  border-radius: 18px;
+  padding: 28px 24px;
+  text-align:center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  max-width: 280px;
+}
+.practice-result-grade{
+  font-size: 3.2rem;
+  line-height:1;
+  margin-bottom: 10px;
+}
+.practice-result-message{
+  font-size: 1rem;
+  font-weight:700;
+  color: var(--ink);
+  margin-bottom: 20px;
+}
+.practice-result-buttons{
+  display:flex;
+  gap: 10px;
+}
+
+

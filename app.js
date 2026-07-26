@@ -5,8 +5,33 @@
 const STROKE_DURATION = 500; // 1画あたりの再生時間（ミリ秒）。ここを変えれば全体の速度を調整できる。
 
 const SVG_NS = "http://www.w3.org/2000/svg";
+const DEFAULT_GRADE_STORAGE_KEY = "kakijun-default-grade"; // 「今の学年」をブラウザに記憶しておくためのキー
 
-let currentGrade = 1;      // 現在選択中の学年
+// ---- 「今の選択（学年／ひらがな等）」の読み込み ----
+// 前回選んだものを localStorage から復元する。保存されていない・
+// 無効な値の場合は、CONTENT_ORDER の先頭（ひらがな）を使う。
+// 保存キー名は既存のまま（以前は漢字の学年専用だったが、
+// ひらがな・カタカナ・すうじも含めて記憶できるように対象を広げただけ）。
+function loadDefaultGrade(){
+  try {
+    const saved = localStorage.getItem(DEFAULT_GRADE_STORAGE_KEY);
+    if (CONTENT_ORDER.includes(saved)) return saved;
+  } catch (e) {
+    // localStorageが使えない環境では無視して既定値にフォールバックする
+  }
+  return CONTENT_ORDER[0];
+}
+
+// ---- 「今の選択」の保存 ----
+function saveDefaultGrade(key){
+  try {
+    localStorage.setItem(DEFAULT_GRADE_STORAGE_KEY, String(key));
+  } catch (e) {
+    // 保存できなくてもアプリの動作自体は継続する
+  }
+}
+
+let currentGrade = loadDefaultGrade(); // 現在選択中のキー（学年の数字 or "hiragana"等。前回の選択を引き継ぐ）
 let currentIndex = 0;      // 個別ページで表示中の配列上のインデックス
 let playTimers = [];       // 再生中の setTimeout ID（再タップ時にクリアするため）
 let playToken = 0;         // 再生の世代を識別するトークン（多重タップ対策）
@@ -29,44 +54,59 @@ const el = {
   btnBackBottom: document.getElementById("btn-back-bottom"),
 };
 
-// ---- 学年データまわりのヘルパー ----
-// 一覧は KANJI_DATA_BY_GRADE に登録されている配列の順番をそのまま表示する
-// （読み方などによる並べ替えは行わない）。
+// ---- 一覧データまわりのヘルパー ----
+// 一覧は CONTENT_REGISTRY に登録されている配列の順番をそのまま表示する
+// （読み方などによる並べ替えは行わない）。関数名は既存のまま残しているが、
+// 現在はひらがな・カタカナ・すうじも含めて返す。
 function getActiveKanjiList(){
-  return KANJI_DATA_BY_GRADE[currentGrade].list;
+  return CONTENT_REGISTRY[currentGrade].list;
 }
 
-// ---- 学年セレクタの初期化 ----
+// ---- 学年（かな等を含む）セレクタの初期化 ----
 function initGradeSelect(){
   el.gradeSelect.innerHTML = "";
-  Object.keys(KANJI_DATA_BY_GRADE)
-    .map(Number)
-    .sort((a, b) => a - b)
-    .forEach(grade => {
-      const option = document.createElement("option");
-      option.value = grade;
-      option.textContent = KANJI_DATA_BY_GRADE[grade].label;
-      el.gradeSelect.appendChild(option);
-    });
+  CONTENT_ORDER.forEach(key => {
+    const option = document.createElement("option");
+    option.value = key;
+    option.textContent = CONTENT_REGISTRY[key].label;
+    el.gradeSelect.appendChild(option);
+  });
   el.gradeSelect.value = currentGrade;
 }
 
 // ---- 一覧ページの描画 ----
 function renderList(){
   el.grid.innerHTML = "";
+  const entryType = CONTENT_REGISTRY[currentGrade].type; // "kanji" | "hiragana" | "katakana" | "number"
+
   getActiveKanjiList().forEach((entry, index) => {
+    const character = entryType === "kanji" ? entry.kanji : entry.character;
 
     const card = document.createElement("div");
     card.className = "kanji-card";
     card.setAttribute("role", "button");
-    card.setAttribute("aria-label", entry.kanji + "の書き順を見る");
+    card.setAttribute("aria-label", character + "の書き順を見る");
 
     const glyph = document.createElement("span");
     glyph.className = "glyph";
-    glyph.textContent = entry.kanji;
+    glyph.textContent = character;
     card.appendChild(glyph);
 
-    card.addEventListener("click", () => openDetail(index));
+    card.addEventListener("click", () => {
+      if (entryType !== "kanji") {
+        // ひらがな・カタカナ・すうじは設定に関係なく常に直接練習モード
+        openPractice(character, { list: getActiveKanjiList(), index });
+        return;
+      }
+      // 漢字は、直接練習モードかどうかを判定し、対象なら新しい練習画面へ、
+      // そうでなければ既存の書き順確認ページ（変更なし）へ。
+      const mode = getPracticeMode("kanji", Number(currentGrade), loadSettings());
+      if (mode === "practice") {
+        openPractice(character, { list: getActiveKanjiList(), index });
+      } else {
+        openDetail(index);
+      }
+    });
     el.grid.appendChild(card);
   });
 }
@@ -253,7 +293,8 @@ el.btnNext.addEventListener("click", goNext);
 el.btnBackTop.addEventListener("click", backToList);
 el.btnBackBottom.addEventListener("click", backToList);
 el.gradeSelect.addEventListener("change", () => {
-  currentGrade = Number(el.gradeSelect.value);
+  currentGrade = el.gradeSelect.value;
+  saveDefaultGrade(currentGrade); // 選んだ学年を「今の学年」として記憶しておく
   backToList();   // 学年を切り替えたら必ず一覧ページに戻す
   renderList();
 });
