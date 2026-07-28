@@ -40,9 +40,6 @@
     document.querySelectorAll('input[name="practice-mode-type"]').forEach(el => {
       el.checked = el.value === settings.practiceModeType;
     });
-    document.querySelectorAll('input[name="sample-position"]').forEach(el => {
-      el.checked = el.value === settings.samplePosition;
-    });
     document.querySelectorAll('input[name="tolerance"]').forEach(el => {
       el.checked = el.value === settings.tolerance;
     });
@@ -82,13 +79,6 @@
     el.addEventListener("change", () => {
       settings.practiceModeType = el.value;
       settingsEl.perGradeBox.classList.toggle("hidden", settings.practiceModeType !== "perGrade");
-      saveSettings(settings);
-    });
-  });
-
-  document.querySelectorAll('input[name="sample-position"]').forEach(el => {
-    el.addEventListener("change", () => {
-      settings.samplePosition = el.value;
       saveSettings(settings);
     });
   });

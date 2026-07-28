@@ -19,7 +19,6 @@ const DEFAULT_SETTINGS = {
   perGradeSelection: {          // "perGrade" のときだけ使う、学年ごとのON/OFF
     1: false, 2: false, 3: false, 4: false, 5: false, 6: false
   },
-  samplePosition: "left",       // 書き順見本の位置: "left" | "right"
   tolerance: "normal",          // なぞり判定の厳しさ: "easy" | "normal" | "hard"
   redoMode: "strokeOnly",       // 失敗時の書き直し方法: "strokeOnly" | "fromStart"
 };

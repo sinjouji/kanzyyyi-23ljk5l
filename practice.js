@@ -87,6 +87,7 @@
     sampleCurrentPathEls.forEach(p => {
       p.el.style.transition = "none";
       p.el.style.strokeDashoffset = p.length;
+      p.el.classList.remove("stroke-active");
     });
     void document.getElementById("practice-sample-svg").getBBox();
 
@@ -95,7 +96,11 @@
       samplePlayTimers.push(setTimeout(() => {
         p.el.style.transition = `stroke-dashoffset ${STROKE_DURATION}ms linear`;
         p.el.style.strokeDashoffset = 0;
+        p.el.classList.add("stroke-active"); // 今描いている画だけ目立つ色にする
       }, i * STROKE_DURATION));
+      samplePlayTimers.push(setTimeout(() => {
+        p.el.classList.remove("stroke-active"); // 描き終わったら通常の色に戻す
+      }, (i + 1) * STROKE_DURATION));
     });
     samplePlayTimers.push(setTimeout(() => {
       box.classList.remove("playing");
