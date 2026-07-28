@@ -245,15 +245,24 @@ header.app-header .subtitle{
     0 2px 10px rgba(79,184,196,0.35);
 }
 
-.grid-guide{
+.grid-guide-css{
   position:absolute;
   inset:0;
   pointer-events:none;
 }
-.grid-guide line{
-  stroke: var(--guide-line);
-  stroke-width: 1;
-  stroke-dasharray: 4 4;
+.grid-guide-v{
+  position:absolute;
+  left:50%;
+  top:0;
+  bottom:0;
+  border-left: 1px dashed var(--guide-line);
+}
+.grid-guide-h{
+  position:absolute;
+  top:50%;
+  left:0;
+  right:0;
+  border-top: 1px dashed var(--guide-line);
 }
 
 .stroke-svg{
@@ -465,47 +474,97 @@ footer.credit a{ color: var(--nando); }
   margin-top: 6px;
 }
 
-/* 練習エリアを大きくする対象（ひらがな・カタカナ・すうじ・小学1年生）のとき：
-   ・タブレット幅（720px以上）：横並びのまま、見本30%／練習70%の幅で表示
-   ・スマホ幅：縦積みにし、高さは JS 側で「画面に収まる範囲」を計算して
-     見本30%／練習70%になるよう明示的に px 指定する（練習エリアが画面外に
-     はみ出さないようにするため）
-*/
-.boxes-row-large{
-  display:flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 14px;
-  width: 100%;
-}
-.boxes-row-large .kanji-box-wrap{
-  width: 100%;
-}
-.kanji-box-practice-large{
-  width: 100%;
-  max-width: none;
-  height: auto; /* スマホではJSが高さをpxで上書きする */
+/* ---------- 直接練習ページ：練習エリアを最優先で表示するレイアウト ---------- */
+/* お手本は常時表示せず、ボタンから開く下からのオーバーレイにする。
+   これにより、画面ロック（スクロール禁止）中でも練習エリアが
+   画面内に確実に収まるようにする。サイズはJS側で「入るだけ正方形に
+   大きく」計算する（正方形を崩すとお手本の座標とズレて書きにくくなる
+   ため、幅と高さの小さいほうに合わせる）。 */
+.practice-status-line{
+  min-height: 1.2em;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin-bottom: 8px;
 }
 
-@media (min-width: 720px){
-  .boxes-row-large{
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 20px;
-  }
-  .boxes-row-large .kanji-box-wrap{
-    width: auto;
-  }
-  .boxes-row-large #practice-sample-box.kanji-box-practice-large{
-    width: 30%;
-    height: auto !important;
-    aspect-ratio: 1 / 1;
-  }
-  .boxes-row-large #practice-write-box.kanji-box-practice-large{
-    width: 70%;
-    height: auto !important;
-    aspect-ratio: 1 / 1;
-  }
+.practice-main-box-wrap{
+  display:flex;
+  justify-content:center;
+  margin: 0 auto;
+}
+.practice-main-box{
+  width: 100%;
+  max-width: none;
+  height: auto; /* JSが実測してpxで指定する */
+}
+
+.practice-view-sample-btn{
+  display:block;
+  margin: 16px auto 0;
+  padding: 12px 28px;
+  border-radius: 999px;
+  border: none;
+  background: var(--nando);
+  color: #FBF7EA;
+  font-family: "Zen Kaku Gothic New", sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.practice-view-sample-btn:active{ transform: translateY(1px); }
+
+/* お手本オーバーレイ：下からせり上がる、通常のレイアウトフローに入らないパネル */
+.practice-sample-overlay{
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 68vh;
+  background: var(--card);
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  box-shadow: 0 -10px 30px rgba(42,39,35,0.28);
+  z-index: 30;
+  transform: translateY(105%);
+  transition: transform 0.22s ease;
+  overflow-y: auto;
+}
+.practice-sample-overlay.overlay-open{
+  transform: translateY(0);
+}
+.practice-sample-overlay-inner{
+  position: relative;
+  padding: 18px 22px 24px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.practice-overlay-close{
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  border: none;
+  background: none;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--ink-soft);
+  cursor: pointer;
+  padding: 6px 10px;
+}
+.practice-sample-overlay .kanji-box-wrap{
+  margin-top: 6px;
+}
+.practice-sample-overlay .kanji-box{
+  width: 46vw;
+  max-width: 210px;
+  height: 46vw;
+  max-height: 210px;
+}
+.practice-sample-overlay-buttons{
+  display:flex;
+  gap: 12px;
+  margin-top: 16px;
 }
 
 /* 直接練習モード中はページ全体のスクロールを止める
@@ -652,14 +711,44 @@ body.no-page-scroll{
     </div>
   </section>
 
-  <!-- ============ 直接練習ページ（骨組み・なぞり判定は未実装） ============ -->
+  <!-- ============ 直接練習ページ ============ -->
   <section id="view-practice" class="hidden">
     <div class="detail-top">
       <button class="back-btn" id="btn-practice-back">← もどる</button>
     </div>
-    <div class="focus-kanji" id="practice-focus-char"></div>
-    <div class="play-instruction" id="practice-instruction">見本をタップで再生 ▶️</div>
-    <div class="boxes-row" id="practice-boxes-row"></div>
+
+    <div class="practice-status-line" id="practice-instruction"></div>
+
+    <div class="practice-main-box-wrap">
+      <div class="kanji-box box-stroke practice-main-box" id="practice-write-box">
+        <div class="grid-guide-css">
+          <span class="grid-guide-v"></span>
+          <span class="grid-guide-h"></span>
+        </div>
+        <svg class="stroke-svg" id="practice-write-svg" viewBox="0 0 109 109" style="touch-action:none;"></svg>
+      </div>
+    </div>
+
+    <button class="practice-view-sample-btn" id="btn-view-sample">▶️ お手本を見る</button>
+
+    <div class="practice-sample-overlay" id="practice-sample-overlay">
+      <div class="practice-sample-overlay-inner">
+        <button class="practice-overlay-close" id="btn-sample-overlay-close" aria-label="閉じる">×</button>
+        <div class="kanji-box-wrap">
+          <div class="kanji-box box-stroke" id="practice-sample-box">
+            <div class="grid-guide-css">
+              <span class="grid-guide-v"></span>
+              <span class="grid-guide-h"></span>
+            </div>
+            <svg class="stroke-svg" id="practice-sample-svg" viewBox="0 0 109 109"></svg>
+          </div>
+        </div>
+        <div class="practice-sample-overlay-buttons">
+          <button class="nav-btn" id="btn-sample-replay">↩️ さいせい</button>
+          <button class="nav-btn" id="btn-sample-continue">✏️ つづきをかく</button>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- ============ 個別ページ ============ -->
@@ -674,10 +763,10 @@ body.no-page-scroll{
     <div class="boxes-row">
       <div class="kanji-box-wrap">
         <div class="kanji-box box-stroke box-stroke-large" id="box-stroke">
-          <svg class="grid-guide" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <line x1="50" y1="0" x2="50" y2="100"></line>
-            <line x1="0" y1="50" x2="100" y2="50"></line>
-          </svg>
+          <div class="grid-guide-css">
+            <span class="grid-guide-v"></span>
+            <span class="grid-guide-h"></span>
+          </div>
           <svg class="stroke-svg" id="stroke-svg" viewBox="0 0 109 109"></svg>
         </div>
       </div>
@@ -30839,16 +30928,15 @@ renderList();
 /* =========================================================================
    practice.js（直接練習モード）
 
-   見本エリア：既存の書き順確認と同じ見た目、タップで最初から再生（変更なし）
-   練習エリア：
-     - うすいお手本＋「今書くべき1画」を目立つ色で表示＋始点○・終点□
-     - ポインター（指／マウス）でなぞった軌跡を、お手本の点列との距離で判定
-     - 判定の厳しさ設定（やさしい／ふつう／きびしい）に応じて許容距離を変更
-     - 失敗時は設定（その1画だけ／すべて最初から）に応じて書き直し
-     - 全画終了後、各画の判定を集計して文字全体の評価を表示し、
-       「もういちど」「つぎのじ」を選べるようにする
+   タブレット利用を前提に、練習エリアを最優先で表示する設計。
+   お手本は常時表示せず、「▶️ お手本を見る」ボタンからオーバーレイ
+   （position:fixedのボトムシート）として開く。オーバーレイの開閉は
+   練習エリアのSVG（#practice-write-svg）にも状態変数
+   （practiceStrokeIndex / strokeGrades / userPoints）にも一切触れないため、
+   お手本を確認しても、それまでに書いた内容やなぞり判定の進み具合は
+   失われない。
 
-   既存の app.js（一覧・個別ページ）には手を加えていない。
+   なぞり判定・採点のロジック（judgeStroke 以下）は既存のまま変更していない。
    ========================================================================= */
 
 (function(){
@@ -30857,13 +30945,17 @@ renderList();
     viewDetail: document.getElementById("view-detail"),
     viewSettings: document.getElementById("view-settings"),
     viewPractice: document.getElementById("view-practice"),
-    focusChar: document.getElementById("practice-focus-char"),
     instruction: document.getElementById("practice-instruction"),
-    boxesRow: document.getElementById("practice-boxes-row"),
+    writeBoxWrap: document.querySelector(".practice-main-box-wrap"),
+    writeBox: document.getElementById("practice-write-box"),
     btnBack: document.getElementById("btn-practice-back"),
+    btnViewSample: document.getElementById("btn-view-sample"),
+    sampleOverlay: document.getElementById("practice-sample-overlay"),
+    btnOverlayClose: document.getElementById("btn-sample-overlay-close"),
+    btnSampleReplay: document.getElementById("btn-sample-replay"),
+    btnSampleContinue: document.getElementById("btn-sample-continue"),
   };
 
-  // ---- 判定の厳しさ → 平均許容距離（SVGのviewBox単位、109x109基準） ----
   const TOLERANCE_THRESHOLD = { easy: 16, normal: 11, hard: 7 };
   const SAMPLE_POINT_COUNT = 24; // お手本を何点サンプリングして距離判定するか
 
@@ -30876,29 +30968,19 @@ renderList();
   let isDrawing = false;
   let userInkEl = null;           // なぞり軌跡を表示する polyline
 
+  let sampleBuilt = false;        // お手本SVGを組み立て済みかどうか（文字が変わったら作り直す）
   let sampleCurrentPathEls = [];
   let samplePlayTimers = [];
 
   /* ---------------------------------------------------------------------
-     見本エリア（既存の確認ページと同じロジック。変更していない）
+     お手本オーバーレイ（練習エリアの状態には一切触れない）
      --------------------------------------------------------------------- */
-  function buildSampleBox(character, isLarge){
-    const wrap = document.createElement("div");
-    wrap.className = "kanji-box-wrap";
-    const largeClass = isLarge ? " kanji-box-practice-large" : "";
-    wrap.innerHTML = `
-      <span class="box-label">見本</span>
-      <div class="kanji-box box-stroke${largeClass}" id="practice-sample-box">
-        <svg class="grid-guide" viewBox="0 0 100 100" preserveAspectRatio="none">
-          <line x1="50" y1="0" x2="50" y2="100"></line>
-          <line x1="0" y1="50" x2="100" y2="50"></line>
-        </svg>
-        <svg class="stroke-svg" id="practice-sample-svg" viewBox="0 0 109 109"></svg>
-      </div>`;
-
-    const data = KANJI_STROKE_DATA[character];
-    const svg = wrap.querySelector("#practice-sample-svg");
+  function buildSampleSvgIfNeeded(){
+    if (sampleBuilt) return;
+    const data = practiceCharData;
+    const svg = document.getElementById("practice-sample-svg");
     svg.setAttribute("viewBox", data.viewBox);
+    svg.innerHTML = "";
     sampleCurrentPathEls = [];
 
     const ghostGroup = document.createElementNS(SVG_NS, "g");
@@ -30920,9 +31002,7 @@ renderList();
       path.style.strokeDashoffset = 0;
       sampleCurrentPathEls.push({ el: path, length });
     });
-
-    wrap.querySelector("#practice-sample-box").addEventListener("click", playSample);
-    return wrap;
+    sampleBuilt = true;
   }
 
   function clearSampleTimers(){
@@ -30951,59 +31031,44 @@ renderList();
     }, sampleCurrentPathEls.length * STROKE_DURATION));
   }
 
+  // ---- オーバーレイを開く／閉じる ----
+  // 練習エリア（#practice-write-svg）にも状態変数にも触れないので、
+  // 開閉しても練習の途中経過は保持されたままになる。
+  function openSampleOverlay(){
+    buildSampleSvgIfNeeded();
+    pEl.sampleOverlay.classList.add("overlay-open");
+  }
+  function closeSampleOverlay(){
+    clearSampleTimers();
+    pEl.sampleOverlay.classList.remove("overlay-open");
+  }
+
   /* ---------------------------------------------------------------------
-     練習エリア
+     練習エリア（最優先で表示するメインエリア）
      --------------------------------------------------------------------- */
-  const TABLET_BREAKPOINT = 720; // style.css の @media (min-width: 720px) と合わせてある
+  // 画面に収まる最大の正方形になるようpxで指定する
+  // （正方形を崩すと、お手本の座標系109x109とマスの縦横比がずれて
+  //   なぞる操作が偏って動かしにくくなるため、常に正方形を保つ）
+  function sizeWriteBox(){
+    const rect = pEl.writeBoxWrap.getBoundingClientRect();
+    const availableWidth = rect.width || window.innerWidth;
 
-  // ---- スマホ幅のとき、見本30%／練習70%になるよう高さをpxで直接指定する ----
-  // （CSSのvh等だけだと、ヘッダーや説明文の高さ次第で練習エリアが画面外に
-  //   はみ出すことがあるため、実際に描画された位置を見て計算する）
-  function applyPhoneLargeSizing(){
-    const sampleBox = document.getElementById("practice-sample-box");
-    const writeBox = document.getElementById("practice-write-box");
-    if (!sampleBox || !writeBox) return;
+    // ひらがな・カタカナ・すうじ・小学1年生は、小さな子には字が小さめに
+    // 感じられるとのことなので、下側の余白（ボタン用のスペース）を
+    // さらに削ってひと回り大きく表示する
+    const entryType = CONTENT_REGISTRY[currentGrade].type;
+    const isLarge = entryType !== "kanji" || String(currentGrade) === "1";
 
-    if (window.innerWidth >= TABLET_BREAKPOINT) {
-      // タブレット幅：CSS側（横並び・30%/70%幅）に任せるので、pxの上書きは解除する
-      sampleBox.style.height = "";
-      writeBox.style.height = "";
-      sampleBox.style.width = "";
-      writeBox.style.width = "";
-      return;
-    }
-
-    const rowTop = pEl.boxesRow.getBoundingClientRect().top;
-    const bottomMargin = 16;
-    const gap = 14;
-    const availableHeight = Math.max(240, window.innerHeight - rowTop - bottomMargin);
-    const sampleHeight = Math.max(90, Math.round((availableHeight - gap) * 0.3));
-    const writeHeight = Math.max(140, Math.round((availableHeight - gap) * 0.7));
-
-    sampleBox.style.width = "100%";
-    writeBox.style.width = "100%";
-    sampleBox.style.height = sampleHeight + "px";
-    writeBox.style.height = writeHeight + "px";
+    const bottomChromeHeight = isLarge ? 46 : 58; // 「お手本を見る」ボタンぶんの見込み
+    const bottomMargin = isLarge ? 6 : 10;
+    const availableHeight = window.innerHeight - rect.top - bottomChromeHeight - bottomMargin;
+    const side = Math.max(160, Math.min(availableWidth, availableHeight));
+    pEl.writeBox.style.width = side + "px";
+    pEl.writeBox.style.height = side + "px";
   }
 
   function onPracticeResize(){
-    if (document.getElementById("practice-write-box")) applyPhoneLargeSizing();
-  }
-
-  function buildPracticeBox(isLarge){
-    const wrap = document.createElement("div");
-    wrap.className = "kanji-box-wrap";
-    const largeClass = isLarge ? " kanji-box-practice-large" : "";
-    wrap.innerHTML = `
-      <span class="box-label">れんしゅう</span>
-      <div class="kanji-box box-stroke${largeClass}" id="practice-write-box">
-        <svg class="grid-guide" viewBox="0 0 100 100" preserveAspectRatio="none">
-          <line x1="50" y1="0" x2="50" y2="100"></line>
-          <line x1="0" y1="50" x2="100" y2="50"></line>
-        </svg>
-        <svg class="stroke-svg" id="practice-write-svg" viewBox="0 0 109 109" style="touch-action:none;"></svg>
-      </div>`;
-    return wrap;
+    if (!pEl.viewPractice.classList.contains("hidden")) sizeWriteBox();
   }
 
   function renderPracticeArea(){
@@ -31070,11 +31135,21 @@ renderList();
   function toSvgPoint(svg, clientX, clientY){
     const rect = svg.getBoundingClientRect();
     const vb = svg.viewBox.baseVal;
-    if (!rect.width || !rect.height || !vb || !vb.width) {
+    if (!rect.width || !rect.height || !vb || !vb.width || !vb.height) {
       return { x: 0, y: 0 };
     }
-    const x = vb.x + ((clientX - rect.left) / rect.width) * vb.width;
-    const y = vb.y + ((clientY - rect.top) / rect.height) * vb.height;
+    // 既定の preserveAspectRatio（xMidYMid meet）では、枠が正方形でない場合
+    // 実際の描画は縦横比を保ったまま中央に収まる（余白ができる）。
+    // ここでその実際の描画範囲（scale・オフセット）を計算してから
+    // クライアント座標をSVG座標に変換することで、枠の縦横比によらず
+    // 実際になぞった距離とずれないようにする。
+    const scale = Math.min(rect.width / vb.width, rect.height / vb.height);
+    const renderedWidth = vb.width * scale;
+    const renderedHeight = vb.height * scale;
+    const offsetX = rect.left + (rect.width - renderedWidth) / 2;
+    const offsetY = rect.top + (rect.height - renderedHeight) / 2;
+    const x = vb.x + (clientX - offsetX) / scale;
+    const y = vb.y + (clientY - offsetY) / scale;
     return { x, y };
   }
 
@@ -31112,7 +31187,7 @@ renderList();
   }
 
   /* ---------------------------------------------------------------------
-     なぞり判定
+     なぞり判定（変更なし）
      --------------------------------------------------------------------- */
   function sampleModelPoints(pathEl, n){
     const len = pathEl.getTotalLength();
@@ -31163,7 +31238,7 @@ renderList();
     if (result.pass) {
       strokeGrades.push(result.grade);
       practiceStrokeIndex += 1;
-      pEl.instruction.textContent = "見本をタップで再生 ▶️／なぞって書いてみよう";
+      pEl.instruction.textContent = "";
       renderPracticeArea();
       attachPointerHandlers();
     } else {
@@ -31194,7 +31269,7 @@ renderList();
   }
 
   /* ---------------------------------------------------------------------
-     結果表示
+     結果表示（変更なし）
      --------------------------------------------------------------------- */
   const GRADE_VALUE = { "◎": 3, "○": 2, "△": 1 };
   const GRADE_MESSAGE = {
@@ -31246,7 +31321,7 @@ renderList();
     removeResultOverlay();
     practiceStrokeIndex = 0;
     strokeGrades = [];
-    pEl.instruction.textContent = "見本をタップで再生 ▶️／なぞって書いてみよう";
+    pEl.instruction.textContent = "";
     renderPracticeArea();
     attachPointerHandlers();
   }
@@ -31286,29 +31361,12 @@ renderList();
     strokeGrades = [];
     userPoints = [];
     practiceListContext = listContext || null;
+    sampleBuilt = false;
     clearSampleTimers();
     removeResultOverlay();
+    pEl.sampleOverlay.classList.remove("overlay-open");
 
-    pEl.focusChar.textContent = character;
-    pEl.instruction.textContent = "見本をタップで再生 ▶️／なぞって書いてみよう";
-
-    const settings = loadSettings();
-    // ひらがな・カタカナ・すうじ・小学1年生の漢字は、小さな子には枠が小さめなので大きくする
-    const entryType = CONTENT_REGISTRY[currentGrade].type;
-    const isLarge = entryType !== "kanji" || String(currentGrade) === "1";
-
-    const sampleBox = buildSampleBox(character, isLarge);
-    const writeBox = buildPracticeBox(isLarge);
-
-    pEl.boxesRow.innerHTML = "";
-    pEl.boxesRow.classList.toggle("boxes-row-large", isLarge);
-    if (settings.samplePosition === "right") {
-      pEl.boxesRow.appendChild(writeBox);
-      pEl.boxesRow.appendChild(sampleBox);
-    } else {
-      pEl.boxesRow.appendChild(sampleBox);
-      pEl.boxesRow.appendChild(writeBox);
-    }
+    pEl.instruction.textContent = "";
 
     renderPracticeArea();
     attachPointerHandlers();
@@ -31319,22 +31377,27 @@ renderList();
     pEl.viewPractice.classList.remove("hidden");
     document.body.classList.add("no-page-scroll"); // 練習中はページ全体のスクロールを止める
 
-    if (isLarge) {
-      applyPhoneLargeSizing();
-      window.addEventListener("resize", onPracticeResize);
-    }
+    sizeWriteBox();
+    window.addEventListener("resize", onPracticeResize);
   }
 
   function closePractice(){
     clearSampleTimers();
     removeResultOverlay();
+    pEl.sampleOverlay.classList.remove("overlay-open");
     pEl.viewPractice.classList.add("hidden");
     pEl.viewList.classList.remove("hidden");
     document.body.classList.remove("no-page-scroll"); // 通常のスクロールに戻す
     window.removeEventListener("resize", onPracticeResize);
   }
 
+  // ---- イベント登録 ----
   pEl.btnBack.addEventListener("click", closePractice);
+  pEl.btnViewSample.addEventListener("click", openSampleOverlay);
+  pEl.btnOverlayClose.addEventListener("click", closeSampleOverlay);
+  pEl.btnSampleContinue.addEventListener("click", closeSampleOverlay);
+  pEl.btnSampleReplay.addEventListener("click", playSample);
+  document.getElementById("practice-sample-box").addEventListener("click", playSample);
 
   window.openPractice = openPractice;
 })();
