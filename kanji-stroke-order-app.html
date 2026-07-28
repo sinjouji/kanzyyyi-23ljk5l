@@ -500,16 +500,6 @@ footer.credit a{ color: var(--nando); }
   justify-content:center;
   margin: 0 auto;
 }
-.practice-main-box-wrap.practice-wrap-full-bleed{
-  margin-left: -16px;
-  margin-right: -16px;
-  width: calc(100% + 32px);
-}
-.practice-main-box{
-  width: 100%;
-  max-width: none;
-  height: auto; /* JSが実測してpxで指定する */
-}
 
 .practice-view-sample-btn{
   display:block;
@@ -732,7 +722,7 @@ body.no-page-scroll{
     <div class="practice-status-line" id="practice-instruction"></div>
 
     <div class="practice-main-box-wrap">
-      <div class="kanji-box box-stroke practice-main-box" id="practice-write-box">
+      <div class="kanji-box box-stroke box-stroke-large practice-main-box" id="practice-write-box">
         <div class="grid-guide-css">
           <span class="grid-guide-v"></span>
           <span class="grid-guide-h"></span>
@@ -30958,8 +30948,6 @@ renderList();
     viewSettings: document.getElementById("view-settings"),
     viewPractice: document.getElementById("view-practice"),
     instruction: document.getElementById("practice-instruction"),
-    writeBoxWrap: document.querySelector(".practice-main-box-wrap"),
-    writeBox: document.getElementById("practice-write-box"),
     btnBack: document.getElementById("btn-practice-back"),
     btnViewSample: document.getElementById("btn-view-sample"),
     sampleOverlay: document.getElementById("practice-sample-overlay"),
@@ -31057,34 +31045,10 @@ renderList();
 
   /* ---------------------------------------------------------------------
      練習エリア（最優先で表示するメインエリア）
+     書き込みマスの大きさは box-stroke-large クラスにより、確認モードの
+     マスと同じサイズ（CSS側で固定）に揃えている。JSでの個別サイズ計算は
+     行わない。
      --------------------------------------------------------------------- */
-  // 画面に収まる最大の正方形になるようpxで指定する
-  // （正方形を崩すと、お手本の座標系109x109とマスの縦横比がずれて
-  //   なぞる操作が偏って動かしにくくなるため、常に正方形を保つ）
-  function sizeWriteBox(){
-    // ひらがな・カタカナ・すうじ・小学1年生は、小さな子には字が小さめに
-    // 感じられるとのことなので、余白側の.appのパディングを飛び出して
-    // 横幅をいっぱいまで使う（正方形なので、幅が制約になっていることが多く、
-    // 下側の余白を削るだけでは大きさが変わらないケースがあったため）
-    const entryType = CONTENT_REGISTRY[currentGrade].type;
-    const isLarge = entryType !== "kanji" || String(currentGrade) === "1";
-    pEl.writeBoxWrap.classList.toggle("practice-wrap-full-bleed", isLarge);
-
-    const rect = pEl.writeBoxWrap.getBoundingClientRect();
-    const sideMargin = isLarge ? 8 : 0; // full-bleed時に画面端ギリギリにならないよう少しだけ余白を残す
-    const availableWidth = (rect.width || window.innerWidth) - sideMargin * 2;
-
-    const bottomChromeHeight = isLarge ? 46 : 58; // 「お手本を見る」ボタンぶんの見込み
-    const bottomMargin = isLarge ? 6 : 10;
-    const availableHeight = window.innerHeight - rect.top - bottomChromeHeight - bottomMargin;
-    const side = Math.max(160, Math.min(availableWidth, availableHeight));
-    pEl.writeBox.style.width = side + "px";
-    pEl.writeBox.style.height = side + "px";
-  }
-
-  function onPracticeResize(){
-    if (!pEl.viewPractice.classList.contains("hidden")) sizeWriteBox();
-  }
 
   function renderPracticeArea(){
     const svg = document.getElementById("practice-write-svg");
@@ -31391,9 +31355,6 @@ renderList();
     pEl.viewSettings.classList.add("hidden");
     pEl.viewPractice.classList.remove("hidden");
     document.body.classList.add("no-page-scroll"); // 練習中はページ全体のスクロールを止める
-
-    sizeWriteBox();
-    window.addEventListener("resize", onPracticeResize);
   }
 
   function closePractice(){
@@ -31403,7 +31364,6 @@ renderList();
     pEl.viewPractice.classList.add("hidden");
     pEl.viewList.classList.remove("hidden");
     document.body.classList.remove("no-page-scroll"); // 通常のスクロールに戻す
-    window.removeEventListener("resize", onPracticeResize);
   }
 
   // ---- イベント登録 ----
