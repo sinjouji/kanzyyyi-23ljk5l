@@ -101,14 +101,44 @@
     </div>
   </section>
 
-  <!-- ============ 直接練習ページ（骨組み・なぞり判定は未実装） ============ -->
+  <!-- ============ 直接練習ページ ============ -->
   <section id="view-practice" class="hidden">
     <div class="detail-top">
       <button class="back-btn" id="btn-practice-back">← もどる</button>
     </div>
-    <div class="focus-kanji" id="practice-focus-char"></div>
-    <div class="play-instruction" id="practice-instruction">見本をタップで再生 ▶️</div>
-    <div class="boxes-row" id="practice-boxes-row"></div>
+
+    <div class="practice-status-line" id="practice-instruction"></div>
+
+    <div class="practice-main-box-wrap">
+      <div class="kanji-box box-stroke box-stroke-large practice-main-box" id="practice-write-box">
+        <div class="grid-guide-css">
+          <span class="grid-guide-v"></span>
+          <span class="grid-guide-h"></span>
+        </div>
+        <svg class="stroke-svg" id="practice-write-svg" viewBox="0 0 109 109" style="touch-action:none;"></svg>
+      </div>
+    </div>
+
+    <button class="practice-view-sample-btn" id="btn-view-sample">▶️ お手本を見る</button>
+
+    <div class="practice-sample-overlay" id="practice-sample-overlay">
+      <div class="practice-sample-overlay-inner">
+        <button class="practice-overlay-close" id="btn-sample-overlay-close" aria-label="閉じる">×</button>
+        <div class="kanji-box-wrap">
+          <div class="kanji-box box-stroke" id="practice-sample-box">
+            <div class="grid-guide-css">
+              <span class="grid-guide-v"></span>
+              <span class="grid-guide-h"></span>
+            </div>
+            <svg class="stroke-svg" id="practice-sample-svg" viewBox="0 0 109 109"></svg>
+          </div>
+        </div>
+        <div class="practice-sample-overlay-buttons">
+          <button class="nav-btn" id="btn-sample-replay">↩️ さいせい</button>
+          <button class="nav-btn" id="btn-sample-continue">✏️ つづきをかく</button>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- ============ 個別ページ ============ -->
@@ -118,26 +148,15 @@
     </div>
 
     <div class="focus-kanji" id="focus-kanji"></div>
-    <div class="play-instruction">右の字をタップで最初から ▶️</div>
+    <div class="play-instruction">字をタップで再生</div>
 
     <div class="boxes-row">
       <div class="kanji-box-wrap">
-        <span class="box-label">かんせい</span>
-        <div class="kanji-box box-static">
-          <svg class="grid-guide" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <line x1="50" y1="0" x2="50" y2="100"></line>
-            <line x1="0" y1="50" x2="100" y2="50"></line>
-          </svg>
-          <svg class="stroke-svg" id="static-svg" viewBox="0 0 109 109"></svg>
-        </div>
-      </div>
-      <div class="kanji-box-wrap">
-        <span class="box-label">かきじゅん</span>
-        <div class="kanji-box box-stroke" id="box-stroke">
-          <svg class="grid-guide" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <line x1="50" y1="0" x2="50" y2="100"></line>
-            <line x1="0" y1="50" x2="100" y2="50"></line>
-          </svg>
+        <div class="kanji-box box-stroke box-stroke-large" id="box-stroke">
+          <div class="grid-guide-css">
+            <span class="grid-guide-v"></span>
+            <span class="grid-guide-h"></span>
+          </div>
           <svg class="stroke-svg" id="stroke-svg" viewBox="0 0 109 109"></svg>
         </div>
       </div>

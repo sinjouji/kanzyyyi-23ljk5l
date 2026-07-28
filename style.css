@@ -22,6 +22,8 @@
 body{
   margin:0;
   min-height:100vh;
+  display:flex;
+  flex-direction:column;
   background:
     radial-gradient(1200px 600px at 10% -10%, rgba(255,255,255,0.35), transparent 60%),
     var(--paper);
@@ -33,7 +35,11 @@ body{
 .app{
   max-width: 900px;
   margin: 0 auto;
+  width: 100%;
   padding: 24px 16px 60px;
+  display:flex;
+  flex-direction:column;
+  flex: 1;
 }
 
 header.app-header{
@@ -211,6 +217,13 @@ header.app-header .subtitle{
   border: 3px solid var(--card-border);
 }
 
+.box-stroke-large{
+  width: 65vw;
+  max-width: 460px;
+  height: 65vw;
+  max-height: 460px;
+}
+
 .box-stroke{
   border: 4px solid var(--idle-border);
   box-shadow: 0 1px 0 rgba(0,0,0,0.05) inset;
@@ -226,15 +239,24 @@ header.app-header .subtitle{
     0 2px 10px rgba(79,184,196,0.35);
 }
 
-.grid-guide{
+.grid-guide-css{
   position:absolute;
   inset:0;
   pointer-events:none;
 }
-.grid-guide line{
-  stroke: var(--guide-line);
-  stroke-width: 1;
-  stroke-dasharray: 4 4;
+.grid-guide-v{
+  position:absolute;
+  left:50%;
+  top:0;
+  bottom:0;
+  border-left: 1px dashed var(--guide-line);
+}
+.grid-guide-h{
+  position:absolute;
+  top:50%;
+  left:0;
+  right:0;
+  border-top: 1px dashed var(--guide-line);
 }
 
 .stroke-svg{
@@ -346,7 +368,8 @@ header.app-header .subtitle{
 
 footer.credit{
   text-align:center;
-  margin-top: 40px;
+  margin-top: auto;
+  padding-top: 40px;
   font-size: 0.68rem;
   color: var(--ink-soft);
   opacity: 0.8;
@@ -444,6 +467,103 @@ footer.credit a{ color: var(--nando); }
   color: var(--ink-soft);
   text-align:center;
   margin-top: 6px;
+}
+
+/* ---------- 直接練習ページ：練習エリアを最優先で表示するレイアウト ---------- */
+/* お手本は常時表示せず、ボタンから開く下からのオーバーレイにする。
+   これにより、画面ロック（スクロール禁止）中でも練習エリアが
+   画面内に確実に収まるようにする。サイズはJS側で「入るだけ正方形に
+   大きく」計算する（正方形を崩すとお手本の座標とズレて書きにくくなる
+   ため、幅と高さの小さいほうに合わせる）。 */
+.practice-status-line{
+  min-height: 1.2em;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin-bottom: 8px;
+}
+
+.practice-main-box-wrap{
+  display:flex;
+  justify-content:center;
+  margin: 0 auto;
+}
+
+.practice-view-sample-btn{
+  display:block;
+  margin: 16px auto 0;
+  padding: 12px 28px;
+  border-radius: 999px;
+  border: none;
+  background: var(--nando);
+  color: #FBF7EA;
+  font-family: "Zen Kaku Gothic New", sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.practice-view-sample-btn:active{ transform: translateY(1px); }
+
+/* お手本オーバーレイ：下からせり上がる、通常のレイアウトフローに入らないパネル */
+.practice-sample-overlay{
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 68vh;
+  background: var(--card);
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  box-shadow: 0 -10px 30px rgba(42,39,35,0.28);
+  z-index: 30;
+  transform: translateY(105%);
+  transition: transform 0.22s ease;
+  overflow-y: auto;
+}
+.practice-sample-overlay.overlay-open{
+  transform: translateY(0);
+}
+.practice-sample-overlay-inner{
+  position: relative;
+  padding: 18px 22px 24px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.practice-overlay-close{
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  border: none;
+  background: none;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--ink-soft);
+  cursor: pointer;
+  padding: 6px 10px;
+}
+.practice-sample-overlay .kanji-box-wrap{
+  margin-top: 6px;
+}
+.practice-sample-overlay .kanji-box{
+  width: 46vw;
+  max-width: 210px;
+  height: 46vw;
+  max-height: 210px;
+}
+.practice-sample-overlay-buttons{
+  display:flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+/* 直接練習モード中はページ全体のスクロールを止める
+   （練習エリア自体は touch-action:none で個別に操作できるようにしてある） */
+body.no-page-scroll{
+  overflow: hidden;
+  height: 100%;
+  position: fixed;
+  width: 100%;
 }
 .user-ink{
   fill: none;

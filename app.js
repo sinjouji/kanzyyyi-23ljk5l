@@ -42,7 +42,6 @@ const el = {
   viewList: document.getElementById("view-list"),
   viewDetail: document.getElementById("view-detail"),
   focusKanji: document.getElementById("focus-kanji"),
-  staticSvg: document.getElementById("static-svg"),
   strokeSvg: document.getElementById("stroke-svg"),
   boxStroke: document.getElementById("box-stroke"),
   strokeCountLabel: document.getElementById("stroke-count-label"),
@@ -158,7 +157,6 @@ function openDetail(index){
   renderOnReadings(el.onReadings, entry.readings.on);
   renderKunReadings(el.kunReadings, entry.readings.kun);
 
-  buildStaticSvg(entry.kanji);
   buildStrokeSvg(entry.kanji);
   showCompletedState(); // 初期状態は完成形を表示
 
@@ -174,22 +172,6 @@ function backToList(){
   clearPlayTimers();
   el.viewDetail.classList.add("hidden");
   el.viewList.classList.remove("hidden");
-}
-
-// ---- 左側（完成形）SVG の構築 ----
-// 右側の書き順アニメーションと同じ KanjiVG のストロークデータをそのまま使うことで、
-// 左右で「同じ字形・同じ書体」に見えるようにする（左は常に全画数を表示するだけで、
-// アニメーションやゴースト表示は行わない）。
-function buildStaticSvg(kanji){
-  const data = KANJI_STROKE_DATA[kanji];
-  el.staticSvg.setAttribute("viewBox", data.viewBox);
-  el.staticSvg.innerHTML = "";
-  data.strokes.forEach(d => {
-    const path = document.createElementNS(SVG_NS, "path");
-    path.setAttribute("d", d);
-    path.setAttribute("class", "stroke-live");
-    el.staticSvg.appendChild(path);
-  });
 }
 
 // ---- 書き順 SVG の構築 ----
