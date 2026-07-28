@@ -34,6 +34,8 @@
 body{
   margin:0;
   min-height:100vh;
+  display:flex;
+  flex-direction:column;
   background:
     radial-gradient(1200px 600px at 10% -10%, rgba(255,255,255,0.35), transparent 60%),
     var(--paper);
@@ -45,7 +47,11 @@ body{
 .app{
   max-width: 900px;
   margin: 0 auto;
+  width: 100%;
   padding: 24px 16px 60px;
+  display:flex;
+  flex-direction:column;
+  flex: 1;
 }
 
 header.app-header{
@@ -224,10 +230,10 @@ header.app-header .subtitle{
 }
 
 .box-stroke-large{
-  width: 62vw;
-  max-width: 280px;
-  height: 62vw;
-  max-height: 280px;
+  width: 65vw;
+  max-width: 460px;
+  height: 65vw;
+  max-height: 460px;
 }
 
 .box-stroke{
@@ -374,7 +380,8 @@ header.app-header .subtitle{
 
 footer.credit{
   text-align:center;
-  margin-top: 40px;
+  margin-top: auto;
+  padding-top: 40px;
   font-size: 0.68rem;
   color: var(--ink-soft);
   opacity: 0.8;
@@ -492,6 +499,11 @@ footer.credit a{ color: var(--nando); }
   display:flex;
   justify-content:center;
   margin: 0 auto;
+}
+.practice-main-box-wrap.practice-wrap-full-bleed{
+  margin-left: -16px;
+  margin-right: -16px;
+  width: calc(100% + 32px);
 }
 .practice-main-box{
   width: 100%;
@@ -758,7 +770,7 @@ body.no-page-scroll{
     </div>
 
     <div class="focus-kanji" id="focus-kanji"></div>
-    <div class="play-instruction">右の字をタップで最初から ▶️</div>
+    <div class="play-instruction">字をタップで再生</div>
 
     <div class="boxes-row">
       <div class="kanji-box-wrap">
@@ -31050,14 +31062,17 @@ renderList();
   // （正方形を崩すと、お手本の座標系109x109とマスの縦横比がずれて
   //   なぞる操作が偏って動かしにくくなるため、常に正方形を保つ）
   function sizeWriteBox(){
-    const rect = pEl.writeBoxWrap.getBoundingClientRect();
-    const availableWidth = rect.width || window.innerWidth;
-
     // ひらがな・カタカナ・すうじ・小学1年生は、小さな子には字が小さめに
-    // 感じられるとのことなので、下側の余白（ボタン用のスペース）を
-    // さらに削ってひと回り大きく表示する
+    // 感じられるとのことなので、余白側の.appのパディングを飛び出して
+    // 横幅をいっぱいまで使う（正方形なので、幅が制約になっていることが多く、
+    // 下側の余白を削るだけでは大きさが変わらないケースがあったため）
     const entryType = CONTENT_REGISTRY[currentGrade].type;
     const isLarge = entryType !== "kanji" || String(currentGrade) === "1";
+    pEl.writeBoxWrap.classList.toggle("practice-wrap-full-bleed", isLarge);
+
+    const rect = pEl.writeBoxWrap.getBoundingClientRect();
+    const sideMargin = isLarge ? 8 : 0; // full-bleed時に画面端ギリギリにならないよう少しだけ余白を残す
+    const availableWidth = (rect.width || window.innerWidth) - sideMargin * 2;
 
     const bottomChromeHeight = isLarge ? 46 : 58; // 「お手本を見る」ボタンぶんの見込み
     const bottomMargin = isLarge ? 6 : 10;
