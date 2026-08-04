@@ -39,6 +39,9 @@ let playToken = 0;         // 再生の世代を識別するトークン（多�
 const el = {
   grid: document.getElementById("kanji-grid"),
   gradeSelect: document.getElementById("grade-select"),
+  headerSearch: document.getElementById("header-search"),
+  gradeSelectRow: document.querySelector(".grade-select-row"),
+  searchResults: document.getElementById("search-results"),
   viewList: document.getElementById("view-list"),
   viewDetail: document.getElementById("view-detail"),
   focusKanji: document.getElementById("focus-kanji"),
@@ -73,41 +76,147 @@ function initGradeSelect(){
   el.gradeSelect.value = currentGrade;
 }
 
-// ---- 一覧ページの描画 ----
+// ---- カタカナ→ひらがな変換（検索の読み一致に使う） ----
+function kataToHira(str){
+  return str.replace(/[\u30A1-\u30F6]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0x60));
+}
+
+// ---- エントリーから、検索対象の文字・画数・読みを取り出す ----
+function getSearchableFields(entry, entryType){
+  const character = entryType === "kanji" ? entry.kanji : entry.character;
+  const strokeCount = entryType === "kanji" ? String(entry.strokeCount) : "";
+  let readings = "";
+  if (entryType === "kanji") {
+    const on = entry.readings.on.map(r => kataToHira(r.text));
+    const kun = entry.readings.kun.map(r => r.base + r.okurigana);
+    readings = [...on, ...kun].join(" ");
+  } else {
+    readings = kataToHira(character);
+  }
+  return { character, strokeCount, readings };
+}
+
+// ---- 画数（数字のみの入力）・字そのもの・読み（音訓どちらもひらがな/カタカナ入力でヒット）で判定する ----
+function fieldsMatchQuery(fields, query){
+  if (!query) return true;
+  if (/^[0-9０-９]+$/.test(query)) {
+    const normalizedDigits = query.replace(/[０-９]/g, d => String.fromCharCode(d.charCodeAt(0) - 0xFEE0));
+    return fields.strokeCount === normalizedDigits;
+  }
+  if (fields.character.includes(query)) return true;
+  const normalizedQuery = kataToHira(query);
+  if (fields.readings && fields.readings.includes(normalizedQuery)) return true;
+  return false;
+}
+
+// ---- 1枚のカードを組み立てる（一覧ページ・横断検索結果の両方で共有） ----
+// categoryKey: そのカードが属する CONTENT_REGISTRY のキー（学年の数字 or "hiragana"等）
+function buildCard(entry, entryType, categoryKey, list, index){
+  const character = entryType === "kanji" ? entry.kanji : entry.character;
+
+  const card = document.createElement("div");
+  card.className = "kanji-card";
+  card.setAttribute("role", "button");
+  card.setAttribute("aria-label", character + "の書き順を見る");
+
+  const glyph = document.createElement("span");
+  glyph.className = "glyph";
+  glyph.textContent = character;
+  card.appendChild(glyph);
+
+  card.addEventListener("click", () => {
+    // 横断検索結果からタップした場合、そのカードが属する学年に切り替えてから開く
+    // （前後移動やモード判定が、そのカード本来の学年を基準に行われるようにするため）
+    if (currentGrade !== categoryKey) {
+      currentGrade = categoryKey;
+      el.gradeSelect.value = categoryKey;
+      saveDefaultGrade(categoryKey);
+    }
+    if (entryType !== "kanji") {
+      // ひらがな・カタカナ・すうじは設定に関係なく常に直接練習モード
+      openPractice(character, { list, index });
+      return;
+    }
+    // 漢字は、直接練習モードかどうかを判定し、対象なら新しい練習画面へ、
+    // そうでなければ既存の書き順確認ページ（変更なし）へ。
+    const mode = getPracticeMode("kanji", Number(categoryKey), loadSettings());
+    if (mode === "practice") {
+      openPractice(character, { list, index });
+    } else {
+      openDetail(index);
+    }
+  });
+  return card;
+}
+
+// ---- 一覧ページの描画（現在選んでいる学年・かな等、1カテゴリぶん） ----
 function renderList(){
   el.grid.innerHTML = "";
   const entryType = CONTENT_REGISTRY[currentGrade].type; // "kanji" | "hiragana" | "katakana" | "number"
+  const list = getActiveKanjiList();
 
-  getActiveKanjiList().forEach((entry, index) => {
-    const character = entryType === "kanji" ? entry.kanji : entry.character;
-
-    const card = document.createElement("div");
-    card.className = "kanji-card";
-    card.setAttribute("role", "button");
-    card.setAttribute("aria-label", character + "の書き順を見る");
-
-    const glyph = document.createElement("span");
-    glyph.className = "glyph";
-    glyph.textContent = character;
-    card.appendChild(glyph);
-
-    card.addEventListener("click", () => {
-      if (entryType !== "kanji") {
-        // ひらがな・カタカナ・すうじは設定に関係なく常に直接練習モード
-        openPractice(character, { list: getActiveKanjiList(), index });
-        return;
-      }
-      // 漢字は、直接練習モードかどうかを判定し、対象なら新しい練習画面へ、
-      // そうでなければ既存の書き順確認ページ（変更なし）へ。
-      const mode = getPracticeMode("kanji", Number(currentGrade), loadSettings());
-      if (mode === "practice") {
-        openPractice(character, { list: getActiveKanjiList(), index });
-      } else {
-        openDetail(index);
-      }
-    });
-    el.grid.appendChild(card);
+  list.forEach((entry, index) => {
+    el.grid.appendChild(buildCard(entry, entryType, currentGrade, list, index));
   });
+}
+
+// ---- 横断検索結果の描画（ひらがな〜小学6年生まで全カテゴリを対象に検索する） ----
+function renderSearchResults(query){
+  el.searchResults.innerHTML = "";
+  let hitCount = 0;
+
+  CONTENT_ORDER.forEach(key => {
+    const { label, type, list } = CONTENT_REGISTRY[key];
+    const matchedIndices = [];
+    list.forEach((entry, index) => {
+      const fields = getSearchableFields(entry, type);
+      if (fieldsMatchQuery(fields, query)) matchedIndices.push(index);
+    });
+    if (matchedIndices.length === 0) return;
+
+    hitCount += matchedIndices.length;
+
+    const group = document.createElement("div");
+    group.className = "search-group";
+
+    const heading = document.createElement("h3");
+    heading.className = "search-group-heading";
+    heading.textContent = "◼️ " + label;
+    group.appendChild(heading);
+
+    const grid = document.createElement("div");
+    grid.className = "kanji-grid";
+    matchedIndices.forEach(index => {
+      grid.appendChild(buildCard(list[index], type, key, list, index));
+    });
+    group.appendChild(grid);
+
+    el.searchResults.appendChild(group);
+  });
+
+  if (hitCount === 0) {
+    const empty = document.createElement("div");
+    empty.className = "search-empty-message";
+    empty.textContent = "見つかりませんでした";
+    el.searchResults.appendChild(empty);
+  }
+}
+
+// ---- 検索欄の入力に応じて、通常の一覧／横断検索結果を切り替える ----
+function updateSearchView(){
+  const query = el.headerSearch.value.trim();
+  if (!query) {
+    el.searchResults.classList.add("hidden");
+    el.grid.classList.remove("hidden");
+    el.gradeSelectRow.classList.remove("hidden");
+    el.gradeSelect.value = currentGrade;
+    renderList(); // 横断検索結果からの遷移でcurrentGradeが変わっている場合があるため描き直す
+    return;
+  }
+  el.grid.classList.add("hidden");
+  el.gradeSelectRow.classList.add("hidden");
+  el.searchResults.classList.remove("hidden");
+  renderSearchResults(query);
 }
 
 // ---- 音読みの表示 ----
@@ -280,6 +389,8 @@ el.gradeSelect.addEventListener("change", () => {
   backToList();   // 学年を切り替えたら必ず一覧ページに戻す
   renderList();
 });
+
+el.headerSearch.addEventListener("input", updateSearchView);
 
 // ---- 初期表示 ----
 initGradeSelect();

@@ -68,6 +68,30 @@ header.app-header .subtitle{
   color: var(--ink-soft);
   letter-spacing: 0.02em;
 }
+.header-right{
+  display:flex;
+  align-items:center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.header-search-input{
+  width: 96px;
+  max-width: 30vw;
+  height: 38px;
+  padding: 0 10px;
+  border: 1.5px solid var(--card-border);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--ink);
+  font-family: "Zen Kaku Gothic New", sans-serif;
+  font-size: 0.82rem;
+}
+.header-search-input::placeholder{ color: var(--ink-soft); }
+.header-search-input:focus{
+  outline: 2px solid var(--mizu);
+  outline-offset: 1px;
+}
+
 .settings-btn{
   border: 1.5px solid var(--card-border);
   background: var(--card);
@@ -83,7 +107,7 @@ header.app-header .subtitle{
 .settings-btn:active{ transform: translateY(1px); }
 
 /* ---------- 一覧ページ ---------- */
-#view-list.hidden, #view-detail.hidden, #view-settings.hidden, #view-practice.hidden, #settings-per-grade.hidden{ display:none; }
+.hidden{ display:none !important; }
 
 .grade-select-row{
   display:flex;
@@ -119,6 +143,27 @@ header.app-header .subtitle{
 }
 @media (min-width: 720px){
   .kanji-grid{ grid-template-columns: repeat(10, 1fr); }
+}
+
+.kanji-card.search-hidden{
+  display:none;
+}
+
+.search-group{
+  margin-bottom: 22px;
+}
+.search-group-heading{
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--nando-deep);
+  margin: 0 0 10px;
+  letter-spacing: 0.03em;
+}
+.search-empty-message{
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 30px 0;
 }
 
 .kanji-card{

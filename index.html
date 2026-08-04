@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
 <title>かきじゅん 〜 漢字の書き順学習</title>
+<meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="icon-kan.png" type="image/png">
 <link rel="apple-touch-icon" href="icon-kan.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,7 +20,10 @@
       <span class="title-jp">かきじゅん</span>
       <span class="subtitle">書き順データ: <a href="https://kanjivg.tagaini.net/" target="_blank" rel="noopener">KanjiVG</a> (© Ulrich Apel, CC BY-SA 3.0)</span>
     </div>
-    <button class="settings-btn" id="btn-open-settings" aria-label="設定">⚙</button>
+    <div class="header-right">
+      <input type="search" id="header-search" class="header-search-input" placeholder="けんさく" aria-label="漢字を検索">
+      <button class="settings-btn" id="btn-open-settings" aria-label="設定">⚙</button>
+    </div>
   </header>
 
   <!-- ============ 一覧ページ ============ -->
@@ -29,6 +33,7 @@
       <select id="grade-select"></select>
     </div>
     <div class="kanji-grid" id="kanji-grid"></div>
+    <div class="search-results hidden" id="search-results"></div>
   </section>
 
   <!-- ============ 設定ページ ============ -->
